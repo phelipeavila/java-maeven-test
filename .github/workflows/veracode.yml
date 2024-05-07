@@ -18,14 +18,14 @@ jobs:
           mvn package -DskipTests
           ls -l
       - name: Upload artfacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: artfacts
           path: .
 
   Veracode-SAST-Pipeline:
     name: Veracode SAST Pipeline
-    if: false
+    if: true
     runs-on: self-hosted
     needs: [Build]
     strategy:
@@ -40,7 +40,7 @@ jobs:
 
     steps:
       - name: Download
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: artfacts
           path: .
