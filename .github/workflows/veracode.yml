@@ -72,3 +72,30 @@ jobs:
         with:
           scan-results-json: 'filtered_results.json'
           github-token: ${{ secrets.TOKEN_GITHUB }}
+
+  Veracode-SAST-Sandbox:
+    name: Veracode SAST Pipeline
+    if: ${{ github.ref == 'refs/heads/development' }}
+    runs-on: self-hosted
+    needs: [Build]
+    strategy:
+      fail-fast: true
+    env:
+      TARGET_FILE_NAME: target/api-0.0.1-SNAPSHOT.jar
+      APPLICATION_NAME: java-maeven-test
+    container:
+      image: veracode/api-wrapper-java:latest
+      options: --user root
+
+    steps:
+      - name: Download
+        uses: actions/download-artifact@v3
+        with:
+          name: artfacts
+          path: .
+
+      - name: Scan
+        run: |
+          # zip -r -v ${{ env.TARGET_FILE_NAME }} . -i '*.js' '*.html'
+          java -jar /opt/veracode/api-wrapper.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" -f ${{ env.TARGET_FILE_NAME }} -p "${{ env.APPLICATION_NAME }}" -action UploadAndScan -sandboxname "${{ github.ref }}" -createprofile false -version "${{ github.run_id }}"
+        continue-on-error: true
