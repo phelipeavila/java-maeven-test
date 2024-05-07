@@ -25,7 +25,7 @@ jobs:
 
   Veracode-SAST-Pipeline:
     name: Veracode SAST Pipeline
-    if: true
+    if: ${{ github.ref == 'refs/heads/development' }}
     runs-on: self-hosted
     needs: [Build]
     strategy:
@@ -33,7 +33,7 @@ jobs:
     env:
       TARGET_FILE_NAME: api-0.0.1-SNAPSHOT.jar
       APPLICATION_NAME: java-maeven-test
-      POLICY_NAME: "Veracode Recommended Medium"
+      POLICY_NAME: Veracode Recommended Medium
     container:
       image: veracode/pipeline-scan:latest
       options: --user root
@@ -47,6 +47,12 @@ jobs:
 
       - name: Scan
         run: |
-          zip -r -v sourcefiles.zip . -i '*.js' '*.html'
-          java -jar /opt/veracode/pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" -f ${{ env.TARGET_FILE_NAME }} -p "${{ env.APPLICATION_NAME }}" -pn "$POLICY_NAME"
-    continue-on-error: true
+          zip -r -v ${{ env.TARGET_FILE_NAME }} . -i '*.js' '*.html' ||
+          java -jar /opt/veracode/pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" -f ${{ env.TARGET_FILE_NAME }} -p "${{ env.APPLICATION_NAME }}" -pn "${{ env.POLICY_NAME }}"
+        continue-on-error: true
+
+      - name: save filtered results file
+        uses: actions/upload-artifact@v4
+        with:
+          name: filtered-results
+          path: filtered_results.json
