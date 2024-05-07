@@ -18,7 +18,7 @@ jobs:
           mvn package -DskipTests
           ls -l
       - name: Upload artfacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: artfacts
           path: .
@@ -40,7 +40,7 @@ jobs:
 
     steps:
       - name: Download
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: artfacts
           path: .
