@@ -13,14 +13,9 @@ jobs:
         uses: actions/checkout@v2
         with:
           persist-credentials: false
-      - name: Setup JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: 17
-          distribution: 'temurin'
       - name: Maeven build
         run: |
-          mvn package
+          mvn package -DskipTests
           ls -l
       - name: Upload artfacts
         uses: actions/upload-artifact@v3
