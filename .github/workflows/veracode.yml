@@ -1,0 +1,26 @@
+name: Veracode Test
+on: [push, pull_request]
+
+jobs:
+  Build:
+    name: Maeven build
+    runs-on: self-hosted
+    steps:
+      - name: Checkout https://github.com/${{ github.repository }}@${{ github.ref }}
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 17
+          distribution: 'temurin'
+      - name: Maeven build
+        run: |
+          mvn package
+          ls -l
+      - name: Upload artfacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: artfacts
+          path: .
