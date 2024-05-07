@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: true
     env:
-      TARGET_FILE_NAME: api-0.0.1-SNAPSHOT.jar
+      TARGET_FILE_NAME: target/api-0.0.1-SNAPSHOT.jar
       APPLICATION_NAME: java-maeven-test
       POLICY_NAME: Veracode Recommended Medium
     container:
