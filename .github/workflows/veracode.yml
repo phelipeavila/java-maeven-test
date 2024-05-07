@@ -47,8 +47,8 @@ jobs:
 
       - name: Scan
         run: |
-          zip -r -v ${{ env.TARGET_FILE_NAME }} . -i '*.js' '*.html' ||
-          java -jar /opt/veracode/pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" -f ${{ env.TARGET_FILE_NAME }} -p "${{ env.APPLICATION_NAME }}" -pn "${{ env.POLICY_NAME }}"
+          # zip -r -v ${{ env.TARGET_FILE_NAME }} . -i '*.js' '*.html'
+          java -jar /opt/veracode/pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" -f ${{ env.TARGET_FILE_NAME }} -p "${{ env.APPLICATION_NAME }}" -pn "${{ env.POLICY_NAME }}" -action UploadAndScan -sandboxname "${{ github.ref }}" -createprofile false -version "${{ github.run_id }}"
         continue-on-error: true
 
       - name: save filtered results file
