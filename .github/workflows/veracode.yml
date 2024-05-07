@@ -25,7 +25,7 @@ jobs:
 
   Veracode-SAST-Pipeline:
     name: Veracode SAST Pipeline
-    if: ${{ github.ref == 'refs/heads/development' }}
+    # if: ${{ github.ref == 'refs/heads/development' }}
     runs-on: self-hosted
     needs: [Build]
     strategy:
@@ -48,11 +48,27 @@ jobs:
       - name: Scan
         run: |
           # zip -r -v ${{ env.TARGET_FILE_NAME }} . -i '*.js' '*.html'
-          java -jar /opt/veracode/pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" -f ${{ env.TARGET_FILE_NAME }} -p "${{ env.APPLICATION_NAME }}" -pn "${{ env.POLICY_NAME }}" -action UploadAndScan -sandboxname "${{ github.ref }}" -createprofile false -version "${{ github.run_id }}"
+          java -jar /opt/veracode/pipeline-scan.jar -vid "${{ secrets.VERACODE_ID }}" -vkey "${{ secrets.VERACODE_KEY }}" -f ${{ env.TARGET_FILE_NAME }} -p "${{ env.APPLICATION_NAME }}" -pn "${{ env.POLICY_NAME }}"
         continue-on-error: true
 
       - name: save filtered results file
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: filtered-results
           path: filtered_results.json
+          # -action UploadAndScan -sandboxname "${{ github.ref }}" -createprofile false -version "${{ github.run_id }}"
+
+  Import_Pipeline_Scan_Issues:
+    needs: Veracode-SAST-Pipeline
+    runs-on: self-hosted
+    steps:
+      - name: get scan results
+        uses: actions/download-artifact@v3
+        with:
+          name: filtered-results
+
+      - name: import flaws as issues
+        uses: buzzcode/veracode-flaws-to-issues@v1
+        with:
+          scan-results-json: 'filtered_results.json'
+          github-token: ${{ secrets.TOKEN_GITHUB }}
